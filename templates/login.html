@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .login-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .login-header h2 {
+            margin: 0;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .alert {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            color: white;
+            background-color: #dc3545;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-header">
+        <h2>Login</h2>
+    </div>
+    <form id="loginForm" method="post">
+        {% csrf_token %}
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" class="form-control" name="username" required>
+        <br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" class="form-control" name="password" required>
+        <br>
+        <button type="submit" class="btn">Login</button>
+    </form>
+    <p id="error" style="color: red;"></p>
+</div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = {
+                username: form.username.value,
+                password: form.password.value
+            };
+            const response = await fetch('/api/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': form.csrfmiddlewaretoken.value
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (response.ok) {
+                localStorage.setItem('token', result.token);
+                window.location.href = '/user-detail/';
+            } else {
+                const errorMessages = result.error || 'Usuario o contraseña incorrectos';
+                document.getElementById('error').textContent = errorMessages;
+
+            }
+        });
+    </script>
+</body>
+</html>
